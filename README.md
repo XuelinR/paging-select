@@ -1,6 +1,7 @@
 # Paging Select 分页选择器
 
 一个基于 Element Plus 的支持分页加载的选择器组件，可用于大数据量的下拉选择场景。
+![分页选择器示例](./src/paging-select.png)
 
 ## 特性
 
