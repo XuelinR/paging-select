@@ -13,7 +13,7 @@
           <label>类型：</label>
           <PagingSelect
             v-model="selectedValue"
-            :get-option-fn="fetchOptions"
+            :fn-get-option="fetchOptions"
             :page-size="pageSizeValue"
             @setRelatedValue="handleSetRelated"
             width="300px"
@@ -45,7 +45,7 @@
           <label>选项：</label>
           <PagingSelect
             v-model="relatedValue"
-            :get-option-fn="fetchRelatedOptions"
+            :fn-get-option="fetchRelatedOptions"
             :related-key="typeValue"
             @setRelatedValue="handleSetRelated"
             width="300px"
@@ -119,7 +119,7 @@ const fetchOptions = (params: any) => {
       // 搜索过滤
       let filteredData = data;
       if (searchKey) {
-        filteredData = data.filter(item => 
+        filteredData = data.filter((item: { ename: string; cname: string|any[]; code: string|any[]; }) => 
           item.ename.toLowerCase().includes(searchKey.toLowerCase()) || 
           item.cname.includes(searchKey) ||
           item.code.includes(searchKey)
@@ -134,7 +134,7 @@ const fetchOptions = (params: any) => {
       resolve({
         list,
         total: filteredData.length,
-        totalPages: Math.ceil(filteredData.length / limit)
+        pages: Math.ceil(filteredData.length / limit)
       });
     }, 300);
   });
@@ -151,7 +151,7 @@ const fetchRelatedOptions = (params: any) => {
       // 搜索过滤
       let filteredData = data;
       if (searchKey) {
-        filteredData = data.filter(item => 
+        filteredData = data.filter((item: { ename: string; cname: string|any[]; code: string|any[]; }) => 
           item.ename.toLowerCase().includes(searchKey.toLowerCase()) || 
           item.cname.includes(searchKey) ||
           item.code.includes(searchKey)
@@ -166,7 +166,7 @@ const fetchRelatedOptions = (params: any) => {
       resolve({
         list,
         total: filteredData.length,
-        totalPages: Math.ceil(filteredData.length / limit)
+        pages: Math.ceil(filteredData.length / limit)
       });
     }, 300);
   });
@@ -246,7 +246,9 @@ label {
   /* width: 60px; */
   text-align: right;
 }
-
+.el-select {
+  width: 300px;
+}
 .settings-panel {
   margin-bottom: 20px;
   display: flex;

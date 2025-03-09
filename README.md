@@ -112,9 +112,9 @@ const handleSetRelated = (item) => {
 
 ## API 接口说明
 
-### getOptionFn 返回数据格式
+### fnGetOption 返回数据格式
 
-组件的 `getOptionFn` 属性需要返回一个带有以下结构的 Promise：
+组件的 `fnGetOption` 属性需要返回一个带有以下结构的 Promise：
 
 ```javascript
 {
@@ -135,7 +135,7 @@ const handleSetRelated = (item) => {
 |-------------|----------|-----------|--------------------------------|
 | modelValue  | String   | -         | 绑定值，使用v-model指令         |
 | width       | String   | 100%      | 选择器宽度                      |
-| getOptionFn | Function | -         | 获取选项的函数，必填            |
+| fnGetOption | Function | -         | 获取选项的函数，必填            |
 | searchKey   | String   | searchKey | 搜索关键字参数名                |
 | relatedKey  | String   | -         | 关联值，变更时会重置选择器      |
 | placeholder | String   | -         | 占位文本                        |
