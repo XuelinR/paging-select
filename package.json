@@ -1,0 +1,50 @@
+{
+  "name": "paging-select",
+  "version": "1.0.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/paging-select.umd.js",
+  "module": "./dist/paging-select.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/paging-select.es.js",
+      "require": "./dist/paging-select.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "paging",
+    "select",
+    "component",
+    "vue3",
+    "element-plus"
+  ],
+  "author": "Ranxl",
+  "license": "ISC",
+  "description": "A pagination-enabled select component based on Element Plus",
+  "dependencies": {
+    "element-plus": ">=2.0.0",
+    "paging-select": "file:",
+    "vue": ">=3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.9",
+    "@vitejs/plugin-vue": "^4.3.4",
+    "@vue/test-utils": "^2.4.6",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.4",
+    "vue-tsc": "^1.8.11"
+  },
+  "peerDependencies": {
+    "element-plus": ">=2.0.0",
+    "vue": ">=3.2.0"
+  }
+}
