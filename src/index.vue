@@ -1,8 +1,8 @@
 <template>
-  <el-select
+  <el-select-v2
     ref="selectRef"
     v-model="localValue"
-    v-loadmore="loadMore"
+    :options="optionsForSelect"
     :placeholder="placeholder"
     :disabled="disabled"
     :clearable="clearable"
@@ -13,23 +13,22 @@
     :filterable="filterable"
     :remote="remote"
     :remote-method="handleRemote"
+    :height="300"
+    :item-height="34"
+    show-arrow
     @clear="handleClear"
     @change="handleSelect"
     @visible-change="handleVisible"
+    @scroll-end="handleScrollEnd"
   >
-    <el-option 
-      v-for="item in state.options" 
-      :key="item.code" 
-      :label="item.ename" 
-      :value="item.code"
-    >
+    <template #default="{ item }">
       <div class="option-container">
         <span class="code-cell">{{ item.code }}</span>
         <span class="name-cell">{{ item.ename }}</span>
         <span class="cname-cell">{{ item.cname }}</span>
       </div>
-    </el-option>
-  </el-select>
+    </template>
+  </el-select-v2>
 </template>
 
 <script lang="ts" setup>
@@ -39,16 +38,8 @@ import {
   watch, 
   onMounted,
   computed, 
-  type DirectiveBinding,
 } from 'vue';
-import type { ElSelect as ElSelectType } from 'element-plus';
-
-// 扩展HTMLElement接口
-declare global {
-  interface HTMLElement {
-    _scrollHandler?: any;
-  }
-}
+import type { ElSelectV2 } from 'element-plus';
 
 interface OptionItem {
   code: string;
@@ -68,70 +59,6 @@ interface PaginatedResponse {
   total: number;
   pages: number;
 }
-
-// 常量配置
-const SCROLL_DELAY = 200;
-const BOTTOM_OFFSET = 5;
-const MAX_RETRY_COUNT = 5;
-
-// 自定义指令优化
-const vLoadmore = {
-  mounted(el: HTMLElement, binding: DirectiveBinding) {
-    let retryCount = 0;
-    
-    const getScrollContainer = (): HTMLElement | null => {
-      const dropdown = el.querySelector('.el-select-dropdown');
-      return dropdown?.querySelector('.el-select-dropdown__wrap') ?? null;
-    };
-
-    const handleScroll = (e: Event) => {
-      const target = e.target as HTMLElement;
-      const { scrollHeight, scrollTop, clientHeight } = target;
-      console.log('scrollHeight', scrollHeight);
-      console.log('scrollTop', scrollTop);
-      console.log('clientHeight', clientHeight);
-      if (scrollHeight - scrollTop - clientHeight <= BOTTOM_OFFSET) {
-        binding.value();
-      }
-    };
-
-    const throttle = (fn: Function, delay: number) => {
-      let lastCall = 0;
-      return (...args: any[]) => {
-        const now = Date.now();
-        if (now - lastCall >= delay) {
-          lastCall = now;
-          fn(...args);
-        }
-      };
-    };
-
-    const addScrollListener = () => {
-      const scrollContainer = getScrollContainer();
-      if (!scrollContainer && retryCount < MAX_RETRY_COUNT) {
-        retryCount++;
-        setTimeout(addScrollListener, 50);
-        return;
-      }
-
-      if (scrollContainer) {
-        const throttledScroll = throttle(handleScroll, SCROLL_DELAY);
-        scrollContainer.addEventListener('scroll', throttledScroll);
-        el._scrollHandler = throttledScroll;
-      }
-    };
-
-    el.addEventListener('click', () => setTimeout(addScrollListener, 100));
-  },
-
-  unmounted(el: HTMLElement) {
-    const scrollContainer = el.querySelector('.el-select-dropdown__wrap');
-    if (scrollContainer && el._scrollHandler) {
-      scrollContainer.removeEventListener('scroll', el._scrollHandler);
-    }
-  }
-};
-
 // Props/Emits 定义优化
 const props = defineProps({
   modelValue: { type: String, required: true },
@@ -156,7 +83,7 @@ const emit = defineEmits<{
 }>();
 
 // 响应式状态
-const selectRef = ref<InstanceType<typeof ElSelectType>>();
+const selectRef = ref<InstanceType<typeof ElSelectV2>>();
 const loading = ref(false);
 const localValue = ref(props.modelValue);
 const searchValue = ref("");
@@ -173,6 +100,15 @@ const hasMoreData = computed(() =>
   state.page < state.pages && 
   state.options.length < state.total
 );
+
+// 转换选项格式以适配 el-select-v2
+const optionsForSelect = computed(() => {
+  return state.options.map(item => ({
+    value: item.code,
+    label: item.ename,
+    ...item
+  }));
+});
 
 // 数据加载逻辑优化
 const fetchData = async () => {
@@ -205,8 +141,9 @@ const loadData = async () => {
   }
 };
 
-// 滚动加载更多数据
-const loadMore = () => {
+// 处理滚动到底部
+const handleScrollEnd = () => {
+  console.log('handleScrollEnd', hasMoreData.value, loading.value);
   if (!hasMoreData.value || loading.value) return;
   
   state.page++;
