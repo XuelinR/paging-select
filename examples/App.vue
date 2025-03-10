@@ -13,8 +13,8 @@
           <label>类型：</label>
           <PagingSelect
             v-model="selectedValue"
-            :fn-get-option="fetchOptions"
-            :page-size="pageSizeValue"
+            :fnGetOption="fetchOptions"
+            :pageSize="pageSizeValue"
             @setRelatedValue="handleSetRelated"
             width="300px"
           />

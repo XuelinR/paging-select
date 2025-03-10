@@ -38,12 +38,17 @@ import {
   reactive, 
   watch, 
   onMounted,
-  nextTick, 
   computed, 
-  type PropType,
   type DirectiveBinding,
 } from 'vue';
 import type { ElSelect as ElSelectType } from 'element-plus';
+
+// 扩展HTMLElement接口
+declare global {
+  interface HTMLElement {
+    _scrollHandler?: any;
+  }
+}
 
 interface OptionItem {
   code: string;
@@ -131,10 +136,7 @@ const vLoadmore = {
 const props = defineProps({
   modelValue: { type: String, required: true },
   width: { type: String, default: "100%" },
-  fnGetOption: { 
-    type: Function as PropType<(params: Record<string, unknown>) => Promise<PaginatedResponse>>, 
-    required: true 
-  },
+  fnGetOption: { type: Function, required: true },
   searchKey: { type: String, default: "searchKey" },
   relatedKey: { type: String, default: "" },
   placeholder: { type: String, default: "请选择" },
@@ -200,6 +202,37 @@ const loadData = async () => {
     console.error('加载数据出错:', error);
   } finally {
     loading.value = false;
+  }
+};
+
+// 滚动加载更多数据
+const loadMore = () => {
+  if (!hasMoreData.value || loading.value) return;
+  
+  state.page++;
+  loadData();
+};
+
+// 远程搜索方法
+const handleRemote = (query: string) => {
+  searchValue.value = query;
+  resetPagination();
+  loadData();
+};
+
+// 清除选择时的处理
+const handleClear = () => {
+  localValue.value = '';
+  emit('clear');
+};
+
+// 选择选项时的处理
+const handleSelect = (value: string) => {
+  if (!value) return;
+  
+  const selectedOption = state.options.find(item => item.code === value);
+  if (selectedOption) {
+    emit('setRelatedValue', selectedOption);
   }
 };
 
